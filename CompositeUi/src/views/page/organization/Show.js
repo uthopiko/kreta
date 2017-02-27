@@ -23,21 +23,29 @@ import InlineLink from './../../component/InlineLink';
 import LoadingSpinner from './../../component/LoadingSpinner';
 import PageHeader from './../../component/PageHeader';
 import {Row, RowColumn} from './../../component/Grid';
+import SettingsParticipants from '../project/SettingsParticipants';
 import SectionHeader from './../../component/SectionHeader';
 import Thumbnail from './../../component/Thumbnail';
 import ContentMiddleLayout from './../../layout/ContentMiddleLayout';
+import ContentRightLayout from './../../layout/ContentRightLayout';
 import CurrentOrganizationActions from './../../../actions/CurrentOrganization';
 
 @connect(state => ({currentOrganization: state.currentOrganization}))
 class Show extends React.Component {
+  state = {
+    addParticipantsVisible: false
+  };
+
   componentDidMount() {
+    console.log(this.props);
     const {params, dispatch} = this.props;
     dispatch(CurrentOrganizationActions.fetchOrganization(params.organization));
   }
 
   getProjects() {
+    console.log(this.props);
     const {organization} = this.props.currentOrganization;
-
+    console.log(organization);
     return organization._projects4l96UD.edges.map((project, index) => {
       const currentProject = project.node;
 
@@ -78,6 +86,14 @@ class Show extends React.Component {
     ));
   }
 
+  showAddParticipants() {
+    this.setState({addParticipantsVisible: true});
+  }
+
+  removeMember(participant) {
+    this.props.dispatch(CurrentOrganizationActions.removeMember(participant));
+  }
+
   render() {
     const {currentOrganization} = this.props;
 
@@ -86,38 +102,59 @@ class Show extends React.Component {
     }
 
     return (
-      <ContentMiddleLayout>
-        <Row>
-          <RowColumn>
-            <PageHeader
-              thumbnail={
-                <Thumbnail
-                  image={null}
-                  text={currentOrganization.organization.name}
-                />
-              }
-              title={currentOrganization.organization.name}
-            >
-              <Icon color="green" glyph={SettingsIcon} size="small"/>Settings
-              <InlineLink to={routes.organization.settings(currentOrganization.organization.slug)}>
-              </InlineLink>
-              <Link to={routes.project.new(currentOrganization.organization.slug)}>
-                <Button color="green">New project</Button>
-              </Link>
-            </PageHeader>
-          </RowColumn>
-          <RowColumn medium={6}>
-            <SectionHeader title="Projects"/>
-            {this.getProjects()}
-          </RowColumn>
-          <RowColumn medium={6}>
-            <SectionHeader title="Owners"/>
-            {this.getOwners()}
-            <SectionHeader title="Members"/>
-            {this.getMembers()}
-          </RowColumn>
-        </Row>
-      </ContentMiddleLayout>
+      <div>
+        <ContentMiddleLayout>
+          <Row>
+            <RowColumn>
+              <PageHeader
+                thumbnail={
+                  <Thumbnail
+                    image={null}
+                    text={currentOrganization.organization.name}
+                  />
+                }
+                title={currentOrganization.organization.name}
+              >
+                <Icon color="green" glyph={SettingsIcon} size="small"/>Settings
+                <InlineLink to={routes.organization.settings(currentOrganization.organization.slug)}>
+                </InlineLink>
+                <Link to={routes.project.new(currentOrganization.organization.slug)}>
+                  <Button color="green">New project</Button>
+                </Link>
+              </PageHeader>
+            </RowColumn>
+            <RowColumn medium={6}>
+              <SectionHeader title="Projects"/>
+              {this.getProjects()}
+            </RowColumn>
+            <RowColumn medium={6}>
+              <SectionHeader
+                  actions={
+                    <Button color="green">
+                      Add Owners
+                    </Button>
+                  }
+                  title="Owners"
+              />
+              {this.getOwners()}
+              <SectionHeader
+                  actions={
+                    <Button color="green" onClick={this.showAddParticipants.bind(this)}>
+                      Add Members
+                    </Button>
+                  }
+                  title="Members"/>
+              {this.getMembers()}
+            </RowColumn>
+          </Row>
+        </ContentMiddleLayout>
+        <ContentRightLayout isOpen={this.state.addParticipantsVisible}>
+          <SettingsParticipants
+              onMemberRemoveClicked={this.removeMember.bind(this)}
+              organization={this.props.currentOrganization}
+          />
+        </ContentRightLayout>
+      </div>
     );
   }
 }

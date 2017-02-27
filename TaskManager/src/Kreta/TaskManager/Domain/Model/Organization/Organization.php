@@ -82,8 +82,12 @@ class Organization extends AggregateRoot
 
     public function removeOrganizationMember(UserId $userId)
     {
-        $this->organizationMembers->removeByUserId($userId);
+        $memberCollection = $this->organizationMembers()->removeByUserId($userId);
+        var_dump($memberCollection->count());
+        $this->organizationMembers = $memberCollection;
+        var_dump($this->organizationMembers()->count());
         $this->updatedOn = new \DateTimeImmutable();
+
 
         $this->publish(new OrganizationMemberRemoved($this->id, $userId));
     }
@@ -93,7 +97,7 @@ class Organization extends AggregateRoot
         if ($this->owners()->count() === 1) {
             throw new UnauthorizedRemoveOwnerException();
         }
-        $this->owners->removeByUserId($userId);
+        $this->owners()->removeByUserId($userId);
         $this->updatedOn = new \DateTimeImmutable();
 
         $this->publish(new OwnerRemoved($this->id, $userId));

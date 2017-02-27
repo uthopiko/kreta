@@ -20,9 +20,16 @@ export default function reducer(state = initialState, action = {}) {
     case ActionTypes.CURRENT_ORGANIZATION_FETCHING: {
       return {...state, fetching: true};
     }
-
     case ActionTypes.CURRENT_ORGANIZATION_RECEIVED : {
       return {...state, fetching: false, organization: action.organization};
+    }
+
+    case ActionTypes.CURRENT_ORGANIZATION_MEMBER_REMOVED : {
+      return {
+        ...state,
+        fetching: false,
+        organization_members: [ state.organization.organization_members.find((member) => member.id !== action.id) ]
+      };
     }
 
     default: {

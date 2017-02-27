@@ -26,6 +26,7 @@ class Button extends React.Component {
       'button',
       {
         'button--green': this.props.color === 'green',
+        'button--red': this.props.color === 'red',
         'button--icon': this.props.type === 'icon',
         'button--small': this.props.size === 'small',
       }

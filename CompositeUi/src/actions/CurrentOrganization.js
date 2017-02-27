@@ -38,17 +38,12 @@ const Actions = {
           .then((users) => {
             // eslint-disable-next-line
             users.map((user, index) => {
-              const
-                owner = organization.owners[index],
-                reverseIndex = users.length - index - 1,
-                member = organization.organization_members[reverseIndex];
-
-              if (typeof owner !== 'undefined' && owner.id === user.id) {
+              if (organization.owners.find((it) => it.id === user.id)) {
                 Object.assign(organization.owners[index], user);
               }
 
-              if (typeof member !== 'undefined' && member.id === user.id) {
-                Object.assign(organization.organization_members[reverseIndex], user);
+              if (organization.organization_members.find((it) => it.id === user.id)) {
+                Object.assign(organization.organization_members[index - organization.owners.length], user);
               }
             });
 
@@ -58,6 +53,26 @@ const Actions = {
             });
           });
       });
+  },
+  addMember: (user) => (dispatch) => {
+    const participant = {
+      role: 'ROLE_MEMBER',
+      user
+    };
+
+    setTimeout(() => {
+      dispatch({
+        type: ActionTypes.CURRENT_PROJECT_PARTICIPANT_ADDED,
+        participant
+      });
+    });
+  },
+  removeMember: (user) => (dispatch) => {
+    const id = user.id;
+    dispatch({
+      type: ActionTypes.CURRENT_ORGANIZATION_MEMBER_REMOVED,
+      id
+    });
   }
 };
 
