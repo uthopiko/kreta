@@ -32,6 +32,16 @@ export default function reducer(state = initialState, action = {}) {
       };
     }
 
+    case ActionTypes.MEMBERS_TO_ADD_RECEIVED: {
+      const newOrganization = state.organization;
+      newOrganization.filtered = action.users;
+      return {
+        ...state,
+        fetching: false,
+        organization: newOrganization
+      };
+    }
+
     default: {
       return state;
     }
